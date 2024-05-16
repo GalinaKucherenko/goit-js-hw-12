@@ -1,0 +1,12 @@
+import{i as a,S as f}from"./assets/vendor-8c59ed88.js";(function(){const t=document.createElement("link").relList;if(t&&t.supports&&t.supports("modulepreload"))return;for(const e of document.querySelectorAll('link[rel="modulepreload"]'))n(e);new MutationObserver(e=>{for(const r of e)if(r.type==="childList")for(const i of r.addedNodes)i.tagName==="LINK"&&i.rel==="modulepreload"&&n(i)}).observe(document,{childList:!0,subtree:!0});function s(e){const r={};return e.integrity&&(r.integrity=e.integrity),e.referrerPolicy&&(r.referrerPolicy=e.referrerPolicy),e.crossOrigin==="use-credentials"?r.credentials="include":e.crossOrigin==="anonymous"?r.credentials="omit":r.credentials="same-origin",r}function n(e){if(e.ep)return;e.ep=!0;const r=s(e);fetch(e.href,r)}})();function u(o){return fetch(`https://pixabay.com/api/?key=43779125-040e3030fad6a4afa34a77542&q=${o}&image_type=photo&orientation=horizontal&safesearch=true`).then(t=>{if(!t.ok)throw new Error("Network response was not ok");return t.json()})}function m(o,t,s){o.innerHTML="";const n=t.hits.map(e=>`<li class="gallery-item">
+                    <a class="gallery-link" href="${e.largeImageURL}">
+                        <img class="gallery-image" src="${e.webformatURL}" alt="${e.tags}">
+                    </a>
+                    <ul class="info">
+                        <li class="info-list">Likes: <span>${e.likes}</span></li>
+                        <li class="info-list">Views: <span>${e.views}</span></li>
+                        <li class="info-list">Comments: <span>${e.comments}</span></li>
+                        <li class="info-list">Downloads: <span>${e.downloads}</span></li>
+                    </ul>
+                </li>`);o.innerHTML=n.join(""),s.refresh()}const d=document.querySelector(".form"),y=document.querySelector('input[name="text"]'),l=document.querySelector(".gallery"),c=document.querySelector(".loader");d.addEventListener("submit",o=>{o.preventDefault();const t=y.value.trim();t!==""&&(c.style.display="block",l.innerHTML="",u(t).then(s=>{s.hits.length===0?a.info({message:"Sorry, there are no images matching your search query. Please try again!",position:"center"}):m(l,s,p)}).catch(s=>{console.log(s),a.error({message:"Sorry, there was an error processing your request.",position:"center"})}).finally(()=>{c.style.display="none"}))});const p=new f(".gallery a",{captionsData:"alt",captionDelay:250});
+//# sourceMappingURL=commonHelpers.js.map
