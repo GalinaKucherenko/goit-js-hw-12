@@ -1,6 +1,5 @@
 export function listPictures(gallery, pictures, lightbox) {
-    gallery.innerHTML = ""; // Очищення поточного вмісту галереї
-    const result = pictures.hits.map((picture) => { // Мапування масиву зображень на розмітку HTML
+    const result = pictures.hits.map((picture) => {
         return `<li class="gallery-item">
                     <a class="gallery-link" href="${picture.largeImageURL}">
                         <img class="gallery-image" src="${picture.webformatURL}" alt="${picture.tags}">
@@ -12,8 +11,7 @@ export function listPictures(gallery, pictures, lightbox) {
                         <li class="info-list">Downloads: <span>${picture.downloads}</span></li>
                     </ul>
                 </li>`;
-    });
-    gallery.innerHTML = result.join("");
-    // Оновлення SimpleLightbox після додавання нових елементів
+    }).join('');
+    gallery.insertAdjacentHTML('beforeend', result);
     lightbox.refresh();
 }

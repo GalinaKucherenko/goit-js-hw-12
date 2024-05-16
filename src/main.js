@@ -10,33 +10,84 @@ const form = document.querySelector('.form');
 const input = document.querySelector('input[name="text"]');
 const gallery = document.querySelector(".gallery");
 const loader = document.querySelector('.loader');
+const loadMoreButton = document.querySelector('.load-more');
 
-form.addEventListener('submit', (event) => { // Зміна обробника подій на сабміт форми
-    event.preventDefault(); // Запобігання стандартній поведінці подання форми
-    const searchTerm = input.value.trim(); // Отримання введеного користувачем пошукового терміна
-    if (searchTerm !== "") { // Перевірка наявності пошукового терміна
-        loader.style.display = 'block'; // Показати елемент завантаження
-        gallery.innerHTML = ""; // Повністю очистити вміст галереї
-        searchPictures(searchTerm) // Виклик функції пошуку зображень з переданим терміном
-            .then((pictures) => {
-                if (pictures.hits.length === 0) { // Перевірка, чи повернув сервер порожній масив зображень
-                    iziToast.info({ message: 'Sorry, there are no images matching your search query. Please try again!', position: 'center' }); // Відображення повідомлення про помилку
-                } else {
-                    listPictures(gallery, pictures, lightbox); // Виклик функції для відображення зображень
-                }
-            })
-            .catch((error) => { // Обробка помилки
-                console.log(error); // Виведення помилки в консоль
-                iziToast.error({ message: 'Sorry, there was an error processing your request.', position: 'center' }); // Відображення повідомлення про помилку
-            })
-            .finally(() => { // Після завершення пошуку, навіть у випадку помилки
-                loader.style.display = 'none'; // Приховати елемент завантаження
-            });
-    } 
+let searchTerm = "";
+let page = 1;
+const limit = 15;
+let totalHits = 0;
+
+form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    searchTerm = input.value.trim();
+    if (searchTerm !== "") {
+        page = 1; // Скидання номера сторінки при новому пошуку
+        gallery.innerHTML = "";
+        hideLoadMoreButton();
+        showLoader();
+        await fetchAndRenderPictures();
+    }
 });
 
+loadMoreButton.addEventListener('click', async () => {
+    page += 1;
+    showLoader();
+    await fetchAndRenderPictures();
+});
+
+async function fetchAndRenderPictures() {
+    try {
+        const pictures = await searchPictures(searchTerm, page, limit);
+        totalHits = pictures.totalHits;
+
+        if (pictures.hits.length === 0 && page === 1) {
+            iziToast.info({ message: 'Sorry, there are no images matching your search query. Please try again!', position: 'center' });
+            hideLoadMoreButton();
+        } else {
+            listPictures(gallery, pictures, lightbox);
+            if (page * limit < totalHits) {
+                showLoadMoreButton();
+            } else {
+                hideLoadMoreButton();
+                if (page * limit >= totalHits && page > 1) {
+                    iziToast.error({ message: "We're sorry, but you've reached the end of search results.", position: 'bottomCenter' });
+                }
+            }
+            smoothScroll();
+        }
+    } catch (error) {
+        console.log(error);
+        iziToast.error({ message: 'Sorry, there was an error processing your request.', position: 'center' });
+    } finally {
+        hideLoader();
+    }
+}
+
+function showLoadMoreButton() {
+    loadMoreButton.style.display = 'block';
+}
+
+function hideLoadMoreButton() {
+    loadMoreButton.style.display = 'none';
+}
+
+function showLoader() {
+    loader.style.display = 'block';
+}
+
+function hideLoader() {
+    loader.style.display = 'none';
+}
 
 const lightbox = new SimpleLightbox('.gallery a', {
     captionsData: 'alt',
     captionDelay: 250,
 });
+
+function smoothScroll() {
+    const { height: cardHeight } = document.querySelector('.gallery').firstElementChild.getBoundingClientRect();
+    window.scrollBy({
+        top: cardHeight * 2,
+        behavior: 'smooth',
+    });
+}

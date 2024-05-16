@@ -60,7 +60,11 @@ button {
 button:hover {
   background: #6c8cff;
 }
-
+.load-more {
+  display: none;
+  margin: 0 auto;
+  width: 120px;
+}
 .loader {
   width: 48px;
   height: 48px;
